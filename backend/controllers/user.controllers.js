@@ -28,14 +28,14 @@ const registerUser = asyncHandler(async(req,res)=>{
     ){
         throw new ApiError(400, "All fields are required");
     }
-    const existedUser=await User.findOne({ username: username.toLowerCase() })
+    const existedUser=await User.findOne({ username: username})
     if(existedUser){
         throw new ApiError(409,"user with username already exists");
     }
     const user= await User.create({
         name,
         password,
-        username:username.toLowerCase()
+        username
     })
     const createdUser= await User.findById(user._id).select(
         "-password -refreshToken"
@@ -96,7 +96,7 @@ const logoutUser=asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $unset:{//yaha set bhi use kar sakte hai agar errpr aaye to
+            $unset:{//yaha set bhi use kar sakte hai agar error aaye to
                 refreshToken:1
             }
         },
