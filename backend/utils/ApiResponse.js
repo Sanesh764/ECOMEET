@@ -1,6 +1,5 @@
 
 class ApiResponse {
-
     constructor(
         statusCode,      // HTTP status code (200, 201, etc.)
         data,            // Actual response data
@@ -12,4 +11,4 @@ class ApiResponse {
         this.success = statusCode < 400
     }
 }
-export { ApiResponse }
+export { ApiResponse };
