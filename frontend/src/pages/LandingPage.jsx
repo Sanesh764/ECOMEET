@@ -15,15 +15,17 @@ import {
   ArrowRight, 
   Sparkles,
   Play
-} from 'lucide-react';
+} from 'lucide-react';//must study
 
 export default function LandingPage() {
   const { setRoute } = useApp();
   const [activeFaq, setActiveFaq] = useState(null);
 
+
   const toggleFaq = (index) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
+
 
   const features = [
   {
@@ -63,6 +65,7 @@ export default function LandingPage() {
       "Optimized servers provide fast and stable connections across India and around the world."
   }
 ];
+
 
 const plans = [
   {
@@ -111,6 +114,7 @@ const plans = [
   }
 ];
 
+
 const testimonials = [
   {
     quote:
@@ -129,6 +133,7 @@ const testimonials = [
       "https://ui-avatars.com/api/?name=Priya+Verma&background=7c3aed&color=fff"
   }
 ];
+
 
 const faqs = [
   {
