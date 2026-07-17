@@ -1,83 +1,130 @@
-import { Server } from "socket.io"
+import { Server } from "socket.io";
 
-let connactions={};
-let messages={};
-let timeOnline={};
-const connectToSocket=(server)=>{
-    const io=new Server(server);
+let connections = {};
+let messages = {};
+let timeOnline = {};
+
+const connectToSocket = (server) => {
+    const io = new Server(server, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"],
+        },
+    });
 
     io.on("connection", (socket) => {
+        console.log("User Connected:", socket.id);
 
-        socket.on("join-call",(path)=>{
-            if(connactions[path]==undefined){
-                connactions[path]=[];
+        // Join Room
+        socket.on("join-call", (path) => {
+            if (!connections[path]) {
+                connections[path] = [];
             }
-            connactions[path].push(socket.id);
 
-            timeOnline[socket.id]=new Date();
+            connections[path].push(socket.id);
+            timeOnline[socket.id] = new Date();
 
-            // connactions[path].forEach(elem=>{
-            //     io.to(elem)
-            // })
-
-            for(let a=0;a<connactions[path].lenght;i++){
-                io.to(connactions[path][a]).emit("user-joined",socket.id,connactions[path]);
+            // Notify everyone in room
+            for (let i = 0; i < connections[path].length; i++) {
+                io.to(connections[path][i]).emit(
+                    "user-joined",
+                    socket.id,
+                    connections[path]
+                );
             }
-            if(messages[path]!=undefined){
-                for(let a=0;a<messages[path].lenght;a++){
-                    io.to(socket.id).emit("chat-message",messages[path][a]['socket-id-sender'])
-                }
-            }
-        });
-        
-        socket.on("signal",(toId,messages)=>{
-            io.to(toId).emit("signal",socket.id,messages);
-        });
 
-        socket.on("chat-message",(data,sender)=>{
-
-            const [matchingRoom,found]=Object.entries(connactions)
-            .reduce(([room,isFound],[roomKey,roomValue])=>{
-                if(!isFound && roomValue.includes(socket.id)){
-                    return [roomKey,true]
-                }
-            },['',false]);
-            if(found===true){
-                if(messages[matchingRoom]===undefined){
-                    messages[matchingRoom]={}
-                }
-                messages[matchingRoom].push({'sender':sender,'data':data,"socket-id-sender":socket.id})
-                console.log("message",key , ":",sender,data);
-
-                connactions[matchingRoom].forEach((ele)=>{
-                    io.to(ele).emit("chat-message",data,sender,socket.id)
-                })
-                
+            // Send previous messages
+            if (messages[path]) {
+                messages[path].forEach((msg) => {
+                    io.to(socket.id).emit(
+                        "chat-message",
+                        msg.data,
+                        msg.sender,
+                        msg.socketIdSender
+                    );
+                });
             }
         });
 
-        socket.on("disconnect",()=>{
-            var diffTime=Math.abs(timeOnline[socket.id]-new Date())
+        // WebRTC Signaling
+        socket.on("signal", (toId, message) => {
+            io.to(toId).emit("signal", socket.id, message);
+        });
 
-            var key;
-            for(const [k,v] of JSON.parse(JSON.stringify(Object.entries(connactions)))){
-                for(let a=0;a<v.lenght;a++){
-                    if(v[a]===socket.id){
-                        key=k;
-
-                        for(let a=0;a<connactions[key].lenght;a++){
-                            io.to(connactions[key][a].emit("user-left",socket.id))
-                        }
-                        var index=connactions[key].indexOf(socket.id)
-                        connactions[key].splice(index,1);
-                        if(connactions[key].lenght===0){
-                            delete connactions[key]
-                        }
+        // Chat Message
+        socket.on("chat-message", (data, sender) => {
+            const [room, found] = Object.entries(connections).reduce(
+                ([roomName, isFound], [key, users]) => {
+                    if (!isFound && users.includes(socket.id)) {
+                        return [key, true];
                     }
+                    return [roomName, isFound];
+                },
+                ["", false]
+            );
+
+            if (found) {
+                if (!messages[room]) {
+                    messages[room] = [];
+                }
+
+                messages[room].push({
+                    sender,
+                    data,
+                    socketIdSender: socket.id,
+                });
+
+                console.log(`Message in ${room}: ${sender} -> ${data}`);
+
+                connections[room].forEach((userId) => {
+                    io.to(userId).emit(
+                        "chat-message",
+                        data,
+                        sender,
+                        socket.id
+                    );
+                });
+            }
+        });
+
+        // Disconnect
+        socket.on("disconnect", () => {
+            const onlineTime =
+                Date.now() - timeOnline[socket.id]?.getTime();
+
+            console.log(
+                `${socket.id} disconnected after ${Math.floor(
+                    onlineTime / 1000
+                )} seconds`
+            );
+
+            for (const [room, users] of Object.entries(connections)) {
+                const index = users.indexOf(socket.id);
+
+                if (index !== -1) {
+                    // Notify remaining users
+                    users.forEach((userId) => {
+                        io.to(userId).emit("user-left", socket.id);
+                    });
+
+                    // Remove socket
+                    users.splice(index, 1);
+
+                    // Delete room if empty
+                    if (users.length === 0) {
+                        delete connections[room];
+                        delete messages[room];
+                    }
+
+                    break;
                 }
             }
+
+            delete timeOnline[socket.id];
         });
     });
+
     return io;
 };
+
 export default connectToSocket;
