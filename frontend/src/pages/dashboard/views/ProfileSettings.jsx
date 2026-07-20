@@ -3,6 +3,7 @@ import { useApp } from '../../../context/AppContext';
 import Card from '../../../components/ui/Card';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
+//
 import { 
   User, 
   Settings, 
@@ -17,6 +18,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
+//profile settings 
 export default function ProfileSettings() {
   const { user, setUser } = useApp();
   
@@ -102,25 +104,6 @@ export default function ProfileSettings() {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row items-center gap-6 pb-4 border-b border-white/5">
-                <div className="relative shrink-0">
-                  <img
-                    src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80'}
-                    className="h-20 w-20 rounded-full object-cover border-2 border-indigo-500"
-                    alt="Upload avatar"
-                  />
-                  <button
-                    type="button"
-                    className="absolute bottom-0 right-0 h-6.5 w-6.5 rounded-full bg-indigo-600 text-white flex items-center justify-center cursor-pointer shadow border border-[#14161f]"
-                  >
-                    <Camera className="h-3 w-3" />
-                  </button>
-                </div>
-                <div className="text-center sm:text-left">
-                  <h4 className="text-sm font-bold text-gray-200">Profile Image</h4>
-                  <p className="text-[11px] text-gray-400 mt-1">PNG, JPG or GIF. Max size 2MB.</p>
-                </div>
-              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input

@@ -82,7 +82,7 @@ export default function DashboardLayout() {
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative shrink-0">
                 <img 
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80'} 
+                  src={'pic sanesh.jpg'} 
                   className="h-9 w-9 rounded-full object-cover border border-white/10" 
                   alt="Avatar" 
                 />
@@ -169,7 +169,7 @@ export default function DashboardLayout() {
             </AnimatePresence>
 
             <img 
-              src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80'} 
+              src={'/pic sanesh.jpg'} 
               className="h-8 w-8 rounded-full object-cover border border-white/10" 
               alt="Profile" 
             />
@@ -261,11 +261,6 @@ export default function DashboardLayout() {
               <div className="p-4 border-t border-white/5 bg-[#0b0c10]/80 shrink-0">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <img 
-                      src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80'} 
-                      className="h-9 w-9 rounded-full object-cover border border-white/10" 
-                      alt="Avatar" 
-                    />
                     <div className="min-w-0">
                       <h4 className="text-xs font-semibold text-gray-200 truncate">{user?.name || 'Sanesh Kumar'}</h4>
                       <p className="text-[10px] text-gray-500 truncate">@{user?.username || 'sanesh'}</p>
